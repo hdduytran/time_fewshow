@@ -10,14 +10,11 @@ class timeSeriesDataset(data.Dataset):
     super(timeSeriesDataset, self).__init__()
     self.dataset_dir  = Path(dataset_dir)
     save_path   = self.dataset_dir / name/ str(ratio_number) / str(ind_number) / "{}.npy".format(name) 
-    dictionary  = np.load(save_path)
+    dictionary  = np.load(save_path, allow_pickle=True)
     self.feature= torch.FloatTensor( dictionary.item().get('X_{}_feature'.format(mode)).todense() )
     self.label = torch.LongTensor( dictionary.item().get('y_{}'.format(mode)) )
-    self.boss_accuracy = dictionary.item().get('Boss_accuracy')
     self.n_classes = len(set(self.label.tolist()))
     self.fea_dim   = self.feature.shape[-1]
-    print('Building timeSeriesDataset for [{}] [{}] with {} classes ...'.format(name, mode, self.n_classes))
-    print("BOSS ACC IS {}".format(self.boss_accuracy))
 
   def __getitem__(self, idx):
     feature = self.feature[idx] 

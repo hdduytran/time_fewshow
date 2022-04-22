@@ -1,6 +1,7 @@
 import torch
 import torch.nn as nn
 from .initialization import init_kaiming
+from .res_block import ResidualBlock
 
 class linear_transform(nn.Module):
   def __init__(self, fea_dim, hidden_dim=2048, out_dim=2048):
@@ -14,6 +15,37 @@ class linear_transform(nn.Module):
     out = self.fc1(x)
     out = self.dp(out)
     out = self.fc2(out)
+    return out
+
+class linear_transform_raw(nn.Module):
+  def __init__(self, fea_dim, hidden_dim=2048, out_dim=2048):
+    super(linear_transform_raw, self).__init__()
+    self.fc1 = nn.Linear(fea_dim, 2048)
+    self.dp = nn.Dropout(p=0.5)
+    self.fc2 = nn.Linear(2048, 2048)
+    self.apply(weights_init)
+
+  def forward(self,x):
+    out = self.fc1(x)
+    out = self.dp(out)
+    out = self.fc2(out)
+    return out
+
+class rcnn(nn.Module):
+  def __init__(self, fea_dim, hidden_dim=2048, out_dim=2048):
+    super(rcnn, self).__init__()
+    self.model = nn.Sequential(
+          nn.Conv1d(1,32,kernel_size = 5, padding = 2, stride = 1),
+          *[ResidualBlock(32) for i in range(5)],
+          nn.AdaptiveAvgPool1d(100),
+          nn.Flatten(),
+          nn.Linear(100*32,32),
+          nn.ReLU(),
+          nn.Linear(32,64))
+
+  def forward(self,x):
+    x = torch.unsqueeze(x,axis = 1)
+    out = self.model(x)
     return out
 
 def weights_init(m):

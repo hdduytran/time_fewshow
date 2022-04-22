@@ -76,7 +76,7 @@ def get_proto(args, model, proto_bag):
 
 
 def save_to_file(sentence, dataset_name, args, log_path=None):
-    father_path = f'./test_accuracy_log_all_as_proto/{args.model_name}/' + dataset_name
+    father_path = f'./results/{args.model_name}/' + dataset_name
     if not os.path.exists(father_path):
         os.makedirs(father_path)
     path = father_path + '/' + dataset_name + '_log.txt'
